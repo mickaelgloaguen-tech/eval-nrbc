@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080b0f">
+<title>EVAL·NRBC IS</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+html,body{height:100%;overflow:hidden;background:#080b0f}
+body{font-family:'Barlow Condensed',sans-serif;color:#eef2f8;display:flex;flex-direction:column;height:100dvh}
+:root{
+  --bg:#080b0f;--s1:#0f1318;--s2:#151a21;--s3:#1c2230;--b1:#26303f;--b2:#32404f;
+  --accent:#00d4b4;--blue:#1e8fff;--warn:#ff9f0a;--danger:#ff453a;--ok:#32d74b;--purple:#bf5af2;--gold:#ffd60a;
+  --t1:#eef2f8;--t2:#8a97ac;--t3:#4a5668;--t4:#252f3c;
+  --r:12px;--rb:11px;
+  --sat: env(safe-area-inset-top,0px); --sab: env(safe-area-inset-bottom,0px);
+}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--bg);position:relative}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.screen.active{display:flex}
+
+/* TOPBAR */
+.topbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:calc(max(10px, var(--sat) + 4px)) 13px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
+.tb-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;letter-spacing:1.5px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;margin-top:2px}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(max(24px, var(--sab) + 16px));min-height:0}
+.scroll::-webkit-scrollbar{width:3px}
+.scroll::-webkit-scrollbar-thumb{background:var(--b1);border-radius:2px}
+
+/* NAVBAR */
+.navbar{background:var(--s1);border-top:1px solid var(--b1);display:flex;flex-shrink:0;padding-bottom:var(--sab)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 2px 9px;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:9px;text-transform:uppercase;border-top:2px solid transparent;transition:all .15s;-webkit-user-select:none;min-width:0}
+.ni.on{color:var(--accent);border-top-color:var(--accent)}
+.ni-ic{font-size:18px;line-height:1}
+
+/* TYPO + LAYOUT */
+.sh{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.sh::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--b1),transparent)}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px;margin-bottom:9px}
+.row{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:background .1s;-webkit-user-select:none}
+.row:active{background:var(--s2)}
+.av{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
+.av-sm{width:32px;height:32px;border-radius:8px;font-size:11px}
+.ri{flex:1;min-width:0}
+.rn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t2);margin-top:2px}
+.prog{height:3px;background:var(--b1);border-radius:2px;margin-top:5px;overflow:hidden}
+.pf{height:100%;border-radius:2px;transition:width .3s}
+.chev{color:var(--t3);font-size:18px;flex-shrink:0}
+.sep{display:flex;align-items:center;gap:7px;margin:11px 0 9px}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--b1)}
+.sep span{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);white-space:nowrap}
+
+/* BUTTONS */
+.btn{width:100%;padding:13px;border:none;border-radius:var(--rb);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .12s;-webkit-user-select:none;letter-spacing:.3px}
+.btn:active{transform:scale(.98)}
+.btn-accent{background:var(--accent);color:#000}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ok{background:var(--ok);color:#000}
+.btn-ghost{background:var(--s2);border:1px solid var(--b1);color:var(--t2)}
+.btn-danger{background:rgba(255,69,58,.1);border:1.5px solid rgba(255,69,58,.3);color:var(--danger)}
+.btn-sm{padding:6px 14px;font-size:12px;width:auto;border-radius:8px}
+.back-btn{display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--t2);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;cursor:pointer;padding:0 0 9px;-webkit-user-select:none}
+
+/* INPUTS */
+.inp{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rb);color:var(--t1);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:12px 13px;width:100%;outline:none}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--t4)}
+.inp-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;margin-bottom:5px;display:block}
+
+/* TABS */
+.tabs{display:flex;background:var(--s2);border-radius:9px;padding:3px;gap:2px;margin-bottom:11px}
+.tbt{flex:1;padding:7px 3px;border-radius:7px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;color:var(--t3);cursor:pointer;transition:all .15s;-webkit-user-select:none;white-space:nowrap}
+.tbt.on{background:var(--s1);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+
+/* STATUS */
+.badge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 7px;border-radius:5px;flex-shrink:0}
+.bd-done{background:rgba(50,215,75,.12);color:var(--ok);border:1px solid rgba(50,215,75,.25)}
+.bd-wip{background:rgba(255,159,10,.12);color:var(--warn);border:1px solid rgba(255,159,10,.25)}
+.bd-todo{background:rgba(74,86,104,.15);color:var(--t3);border:1px solid var(--b1)}
+
+/* SESSION BANNER */
+.sess-banner{margin-bottom:12px;background:linear-gradient(135deg,rgba(30,143,255,.15),rgba(0,212,180,.08));border:1.5px solid rgba(30,143,255,.4);border-radius:13px;padding:12px 13px;cursor:pointer;position:relative;overflow:hidden;-webkit-user-select:none}
+.sess-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--accent));animation:pline 2s ease-in-out infinite}
+@keyframes pline{0%,100%{opacity:1}50%{opacity:.4}}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);animation:blink 1.2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* FAMILLES */
+.fam-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.fam-card{border-radius:var(--r);padding:11px 10px;cursor:pointer;border:1.5px solid;transition:all .15s;-webkit-user-select:none;position:relative}
+.fam-card.open{border-width:2px}
+.fam-icon{font-size:20px;margin-bottom:4px}
+.fam-code{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;margin-bottom:2px}
+.fam-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:var(--t1);line-height:1.2}
+.fam-count{font-family:'Share Tech Mono',monospace;font-size:8px;margin-top:3px}
+.fam-chev{position:absolute;top:9px;right:9px;font-size:12px;transition:transform .2s;color:var(--t3)}
+.fam-card.open .fam-chev{transform:rotate(90deg)}
+.f-ops{background:rgba(0,212,180,.07);border-color:rgba(0,212,180,.3)}.f-ops .fam-code{color:var(--accent)}.f-ops .fam-count{color:rgba(0,212,180,.5)}.f-ops.open{background:rgba(0,212,180,.12);border-color:var(--accent)}
+.f-peda{background:rgba(30,143,255,.07);border-color:rgba(30,143,255,.3)}.f-peda .fam-code{color:var(--blue)}.f-peda .fam-count{color:rgba(30,143,255,.5)}.f-peda.open{background:rgba(30,143,255,.12);border-color:var(--blue)}
+.f-mrt{background:rgba(255,159,10,.07);border-color:rgba(255,159,10,.3)}.f-mrt .fam-code{color:var(--warn)}.f-mrt .fam-count{color:rgba(255,159,10,.5)}.f-mrt.open{background:rgba(255,159,10,.12);border-color:var(--warn)}
+.f-mat{background:rgba(191,90,242,.07);border-color:rgba(191,90,242,.3)}.f-mat .fam-code{color:var(--purple)}.f-mat .fam-count{color:rgba(191,90,242,.5)}.f-mat.open{background:rgba(191,90,242,.12);border-color:var(--purple)}
+.comp-panel{display:none;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:9px;overflow:hidden;animation:sld .18s ease}
+@keyframes sld{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.comp-panel.open{display:block}
+.comp-item{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-bottom:1px solid var(--b1)}
+.comp-item:last-child{border-bottom:none}
+.comp-name{flex:1;font-size:13px;color:var(--t1);line-height:1.35;padding-top:1px}
+.info-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--b2);background:var(--s3);color:var(--t3);font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-user-select:none;margin-top:2px}
+.note-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px 10px 9px}
+.nb{padding:7px 2px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s3);font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);cursor:pointer;text-align:center;line-height:1.5;transition:all .1s;-webkit-user-select:none}
+.nb:active{transform:scale(.93)}
+.nb.n0{border-color:var(--t3);color:var(--t2)}
+.nb.n1{border-color:var(--danger);color:var(--danger);background:rgba(255,69,58,.1)}
+.nb.n2{border-color:var(--warn);color:var(--warn);background:rgba(255,159,10,.1)}
+.nb.n3{border-color:var(--ok);color:var(--ok);background:rgba(50,215,75,.1)}
+
+/* TOOLTIP */
+.tip-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;align-items:flex-end;padding:16px}
+.tip-ov.open{display:flex}
+.tip-box{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px;width:100%;max-height:60dvh;overflow-y:auto}
+.tip-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--t1);margin-bottom:9px;line-height:1.3}
+.tip-sub{display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--b1);font-size:13px;color:var(--t2);line-height:1.4}
+.tip-sub:last-child{border-bottom:none}
+.tip-sub::before{content:'›';color:var(--accent);font-size:15px;flex-shrink:0}
+
+/* GRILLE COLLECTIVE */
+.grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);border:1px solid var(--b1);margin-bottom:9px}
+.grid-wrap::-webkit-scrollbar{height:3px}
+.grid-wrap::-webkit-scrollbar-thumb{background:var(--b1);border-radius:2px}
+.gtable{border-collapse:collapse;width:100%}
+.gth-c{padding:8px 10px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;background:var(--s1);border-bottom:2px solid var(--b1);border-right:1px solid var(--b1);position:sticky;left:0;z-index:5;min-width:130px;max-width:155px}
+.gth-s{padding:7px 4px;text-align:center;background:var(--s1);border-bottom:2px solid var(--b1);border-right:1px solid var(--b1);width:48px;min-width:48px}
+.gth-s:last-child{border-right:none}
+.gav{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;margin:0 auto 2px}
+.glbl{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--t3);text-align:center}
+.gfam td{padding:6px 10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;border-bottom:1px solid var(--b1);cursor:pointer;-webkit-user-select:none;white-space:nowrap;background:var(--s1)}
+.gcomp-td{padding:6px 10px;font-size:12px;color:var(--t1);border-bottom:1px solid var(--b1);border-right:1px solid var(--b1);vertical-align:middle;line-height:1.3;position:sticky;left:0;background:var(--s2);z-index:2;max-width:155px}
+.gcomp-inner{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.gcell{padding:5px 4px;text-align:center;border-bottom:1px solid var(--b1);border-right:1px solid var(--b1);cursor:pointer;-webkit-user-select:none}
+.gcell:last-child{border-right:none}
+.gn{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:14px;margin:0 auto;transition:all .12s;line-height:1}
+.gn[data-v="1"]{background:rgba(255,69,58,.12);border-color:rgba(255,69,58,.45)}
+.gn[data-v="2"]{background:rgba(255,159,10,.12);border-color:rgba(255,159,10,.45)}
+.gn[data-v="3"]{background:rgba(50,215,75,.12);border-color:rgba(50,215,75,.45)}
+
+/* WIZARD */
+.wz-step{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.wz-step.on{display:flex}
+.wz-head{padding:10px 13px 9px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.wz-prog{display:flex;gap:4px;margin-bottom:7px}
+.wp{flex:1;height:3px;border-radius:2px;background:var(--b1)}
+.wp.done{background:var(--ok)}.wp.cur{background:var(--accent)}
+.wz-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:var(--t1);line-height:1.1}
+.wz-hint{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px}
+.wz-foot{padding:10px 12px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:8px;flex-shrink:0}
+.wz-back{padding:12px 13px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rb);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--t2);cursor:pointer;flex-shrink:0}
+.wz-next{flex:1;padding:12px;border:none;border-radius:var(--rb);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .12s;-webkit-user-select:none}
+.wz-next:active{transform:scale(.97)}
+.pick{display:flex;align-items:center;gap:10px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--rb);padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:all .12s;-webkit-user-select:none}
+.pick.sel{border-color:var(--accent);background:rgba(0,212,180,.07)}
+.pick-chk{width:20px;height:20px;border-radius:50%;border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:transparent}
+.pick.sel .pick-chk{background:var(--accent);border-color:var(--accent);color:#000}
+.sit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sit-c{background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--rb);padding:11px 10px;cursor:pointer;transition:all .12s;-webkit-user-select:none}
+.sit-c.sel{border-color:var(--blue);background:rgba(30,143,255,.09)}
+.sit-c:active{transform:scale(.97)}
+.sit-code{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--blue);margin-bottom:3px}
+.sit-name{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--t1);line-height:1.2}
+
+/* SIGNATURE */
+.sig-wrap{background:var(--s2);border:1.5px dashed var(--b2);border-radius:var(--r);overflow:hidden;margin-bottom:8px;position:relative}
+.sig-cv{width:100%;height:110px;cursor:crosshair;display:block;touch-action:none}
+.sig-clear{position:absolute;top:6px;right:8px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;padding:3px 8px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);cursor:pointer}
+
+/* RETEX */
+.rex-block{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+.rex-head{display:flex;align-items:center;gap:8px;padding:10px 11px;font-weight:600;font-size:14px;color:var(--t1)}
+.rex-ta{border:none;border-top:1px solid var(--b1);background:transparent;color:var(--t1);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:9px 11px;width:100%;resize:none;min-height:52px;outline:none}
+.rex-ta::placeholder{color:var(--t4)}
+.diff-row{display:flex;gap:5px;padding:0 11px 10px}
+.diff-b{flex:1;padding:7px 3px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s3);font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);cursor:pointer;text-align:center;transition:all .12s;-webkit-user-select:none}
+.diff-b.sf{border-color:var(--ok);color:var(--ok);background:rgba(50,215,75,.1)}
+.diff-b.sc{border-color:var(--accent);color:var(--accent);background:rgba(0,212,180,.1)}
+.diff-b.sd{border-color:var(--danger);color:var(--danger);background:rgba(255,69,58,.1)}
+
+/* PARAMS */
+.p-sec{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.p-sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--b1),transparent)}
+.p-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:6px;gap:8px}
+.p-lbl{font-size:14px;color:var(--t1);font-weight:600;line-height:1.2}
+.p-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:16px}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:var(--b1)}
+.tli{position:relative;margin-bottom:9px}
+.tld{position:absolute;left:-14px;top:5px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg)}
+.tlc{background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:8px 10px}
+.tls{font-weight:600;font-size:13px;color:var(--t1)}
+.tlm{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3);margin-top:2px}
+
+/* LOGIN */
+#sc-login{align-items:center;justify-content:center;padding:20px 22px}
+.logo-box{width:64px;height:64px;border:1.5px solid var(--accent);border-radius:16px;background:linear-gradient(135deg,#0d1a27,#07111b);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 0 20px rgba(0,212,180,.1)}
+.type-toggle{display:flex;background:var(--s2);border-radius:9px;padding:3px;gap:3px;margin-bottom:18px;width:100%;max-width:270px}
+.type-btn{flex:1;padding:9px;border-radius:7px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;color:var(--t3);cursor:pointer;transition:all .2s}
+.type-btn.on{background:var(--accent);color:#000}
+.pin-dots{display:flex;gap:10px;margin-bottom:16px}
+.pd{width:12px;height:12px;border-radius:50%;border:2px solid var(--b2);transition:all .15s}
+.pd.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 7px var(--accent)}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:230px}
+.pk{background:var(--s2);border:1px solid var(--b1);border-radius:11px;padding:14px 6px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;color:var(--t1);text-align:center;cursor:pointer;transition:all .1s;-webkit-user-select:none}
+.pk:active{background:var(--s3);transform:scale(.92)}
+
+/* METEO */
+.meteo-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.meteo-btn{padding:5px 9px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;color:var(--t2);cursor:pointer;transition:all .12s;-webkit-user-select:none}
+.meteo-btn.sel{border-color:var(--blue);background:rgba(30,143,255,.1);color:var(--blue)}
+
+/* STAGIAIRE VIEW */
+.sv-comp{padding:7px 10px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:8px}
+.sv-comp:last-child{border-bottom:none}
+.sv-comp-name{flex:1;font-size:13px;color:var(--t1);line-height:1.3}
+.nc{font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid;flex-shrink:0;white-space:nowrap}
+.nc-ne{color:var(--t3);border-color:var(--b2);background:var(--s3)}
+.nc-na{color:var(--danger);border-color:rgba(255,69,58,.3);background:rgba(255,69,58,.08)}
+.nc-ec{color:var(--warn);border-color:rgba(255,159,10,.3);background:rgba(255,159,10,.08)}
+.nc-aq{color:var(--ok);border-color:rgba(50,215,75,.3);background:rgba(50,215,75,.08)}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:12px}
+.ld-bar{width:200px;height:3px;background:var(--b1);border-radius:2px;overflow:hidden}
+.ld-fill{height:100%;background:var(--accent);border-radius:2px;width:0;transition:width .3s}
+
+/* TOAST */
+#toast{position:fixed;bottom:max(80px,calc(var(--sab) + 80px));left:50%;transform:translateX(-50%) translateY(10px);background:var(--ok);color:#000;border-radius:18px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90%}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{background:var(--danger);color:#fff}
+
+/* CONFIRM */
+#cfm-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;padding:16px}
+#cfm-ov.open{display:flex}
+#cfm-box{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px;width:100%}
+
+/* MODAL */
+#modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;padding:16px}
+#modal-ov.open{display:flex}
+#modal-box{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px;width:100%;max-height:80dvh;overflow-y:auto}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — TABLETTE + DESKTOP
+═══════════════════════════════════════════════════════ */
+@media (min-width: 768px){
+  body{background:#05080b}
+
+  /* App en row : sidebar | contenu */
+  #app{
+    max-width:100%;
+    flex-direction:row;
+    height:100dvh;
+    overflow:hidden;
+    border-left:1px solid var(--b1);
+    border-right:1px solid var(--b1);
+    margin:0 auto;
+  }
+
+  /* Sidebar verticale */
+  .navbar{
+    flex-direction:column !important;
+    width:60px;
+    min-width:60px;
+    height:100%;
+    border-top:none !important;
+    border-right:1px solid var(--b1);
+    padding:10px 0 0;
+    flex-shrink:0 !important;
+    justify-content:flex-start;
+    gap:0;
+    order:-1;
+  }
+  .ni{
+    flex-direction:column;
+    padding:10px 4px;
+    border-top:none !important;
+    border-left:2px solid transparent;
+    border-radius:0;
+    width:100%;
+    font-size:8px;
+  }
+  .ni.on{
+    border-left-color:var(--accent) !important;
+    border-top-color:transparent !important;
+    background:rgba(0,212,180,.07);
+  }
+  .ni-ic{font-size:19px}
+
+  /* Écrans : prennent le reste */
+  .screen{
+    flex:1 !important;
+    min-width:0;
+    overflow:hidden;
+    display:none;
+    flex-direction:column;
+  }
+  .screen.active{display:flex !important}
+
+  /* Scroll intérieur */
+  .scroll{padding:14px 20px 28px}
+
+  /* Corrections vue stagiaire */
+  #sv-scores{
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:14px;
+  }
+  #sv-res,#sv-ref{overflow-y:auto}
+
+  /* Fam grid */
+  .fam-grid{grid-template-columns:repeat(4,1fr)}
+  .sit-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+@media (min-width:1100px){
+  #app{max-width:1400px}
+
+  .navbar{width:180px;min-width:180px;padding:14px 8px 0}
+  .ni{
+    flex-direction:row !important;
+    justify-content:flex-start;
+    gap:10px;
+    padding:11px 14px;
+    font-size:12px;
+    white-space:nowrap;
+    border-radius:8px;
+    margin:1px 4px;
+    width:calc(100% - 8px);
+  }
+  .ni.on{border-left-color:transparent !important;background:rgba(0,212,180,.1) !important;color:var(--accent)}
+  .ni-ic{font-size:17px}
+
+  /* Grilles 2 colonnes */
+  #stag-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #stag-list .row{margin-bottom:0}
+  #dash-ranking{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #dash-ranking .row{margin-bottom:0}
+
+  .scroll{padding:18px 32px 32px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:3px">EVAL·NRBC IS</div>
+  <div class="ld-bar"><div class="ld-fill" id="ld-fill"></div></div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:2px" id="ld-msg">CONNEXION…</div>
+</div>
+
+<div id="app" style="display:none">
+
+<!-- ══ SIDEBAR GLOBALE (desktop) + NAVBAR BAS (mobile) ══ -->
+<nav class="navbar" id="global-nav">
+  <button class="ni on" id="gnav-dashboard" onclick="go('dashboard')"><div class="ni-ic">🏠</div>Accueil</button>
+  <button class="ni" id="gnav-evaluer" onclick="go('evaluer')"><div class="ni-ic">📋</div>Évaluer</button>
+  <button class="ni" id="gnav-stagiaires" onclick="go('stagiaires')"><div class="ni-ic">👥</div>Stagiaires</button>
+  <button class="ni" id="gnav-rex-list" onclick="go('rex-list')"><div class="ni-ic">💬</div>Retex</button>
+  <button class="ni" id="gnav-params" onclick="go('params')"><div class="ni-ic">⚙️</div>Params</button>
+</nav>
+
+<!-- ══ LOGIN ══ -->
+<div class="screen" id="sc-login">
+  <div class="logo-box">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:1px">EVAL</span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1px">NRBC</span>
+  </div>
+  <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;letter-spacing:3px;color:var(--t1)">EVAL·NRBC IS</div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:20px">CELLULE NRBC</div>
+  <div class="type-toggle">
+    <button class="type-btn on" id="tt-i" onclick="setLT('inst')">Instructeur</button>
+    <button class="type-btn" id="tt-s" onclick="setLT('stag')">Stagiaire</button>
+  </div>
+  <div id="role-badge" style="display:none;margin-bottom:12px;padding:4px 14px;border-radius:20px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px"></div>
+  <!-- PIN -->
+  <div id="pin-z" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:9px">PIN À 6 CHIFFRES</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pd"></div><div class="pd"></div><div class="pd"></div>
+      <div class="pd"></div><div class="pd"></div><div class="pd"></div>
+    </div>
+    <div class="pinpad">
+      <div class="pk" onclick="pp('1')">1</div><div class="pk" onclick="pp('2')">2</div><div class="pk" onclick="pp('3')">3</div>
+      <div class="pk" onclick="pp('4')">4</div><div class="pk" onclick="pp('5')">5</div><div class="pk" onclick="pp('6')">6</div>
+      <div class="pk" onclick="pp('7')">7</div><div class="pk" onclick="pp('8')">8</div><div class="pk" onclick="pp('9')">9</div>
+      <div class="pk" style="visibility:hidden"></div>
+      <div class="pk" onclick="pp('0')">0</div>
+      <div class="pk" style="font-size:16px;color:var(--t3)" onclick="pd()">⌫</div>
+    </div>
+  </div>
+  <!-- Code stagiaire -->
+  <div id="code-z" style="display:none;width:100%;max-width:270px">
+    <label class="inp-lbl">CODE D'ACCÈS</label>
+    <input class="inp" id="stag-inp" placeholder="Ex : LEROUX-2847" style="text-transform:uppercase;letter-spacing:3px;text-align:center;margin-bottom:11px">
+    <button class="btn btn-accent" onclick="loginStag()">ACCÉDER →</button>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="screen" id="sc-dashboard">
+  <div class="topbar">
+    <div style="flex:1;min-width:0"><div class="tb-title">EVAL·NRBC IS</div><div class="tb-sub">CELLULE NRBC</div></div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <div style="padding:3px 9px;border-radius:20px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);background:rgba(0,212,180,.1);border:1px solid rgba(0,212,180,.2)" id="dash-chip">INSTRUCTEUR</div>
+      <button style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;padding:4px" onclick="logout()">⏏</button>
+    </div>
+  </div>
+  <div class="scroll">
+    <div id="dash-banner"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:13px">
+      <div class="card" style="padding:10px 7px;text-align:center;margin-bottom:0"><div style="font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:bold;color:var(--accent)" id="stat-stag">—</div><div style="font-size:10px;color:var(--t2);margin-top:1px">Stagiaires</div></div>
+      <div class="card" style="padding:10px 7px;text-align:center;margin-bottom:0"><div style="font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:bold;color:var(--blue)" id="stat-eval">—</div><div style="font-size:10px;color:var(--t2);margin-top:1px">Évals</div></div>
+      <div class="card" style="padding:10px 7px;text-align:center;margin-bottom:0"><div style="font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:bold;color:var(--warn)" id="stat-sess">—</div><div style="font-size:10px;color:var(--t2);margin-top:1px">Sessions</div></div>
+    </div>
+    <div class="sh">Stagiaires</div>
+    <div id="dash-ranking"></div>
+  </div>
+</div>
+
+<!-- ══ SESSION ══ -->
+<div class="screen" id="sc-session">
+  <div class="topbar">
+    <div style="flex:1;min-width:0"><div class="tb-title" id="sess-title-tb">SESSION</div><div class="tb-sub">EN COURS</div></div>
+    <div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><div class="live-dot" style="position:static"></div><div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--ok)">LIVE</div></div>
+  </div>
+  <div class="scroll">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+      <div class="card" style="margin-bottom:0;text-align:center">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;margin-bottom:3px">DURÉE</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold;color:var(--ok)" id="sess-chrono">00:00</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;margin-bottom:5px">PROGRESSION</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:bold;color:var(--ok);text-align:center" id="sess-prog-txt">0/0</div>
+        <div style="height:4px;background:var(--b1);border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));border-radius:3px;transition:width .4s;width:0" id="sess-prog-bar"></div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:1px;margin-bottom:7px">CONDITIONS TERRAIN</div>
+      <div class="meteo-row">
+        <div class="meteo-btn sel" onclick="togMeteo(this)">☀️ Soleil</div>
+        <div class="meteo-btn" onclick="togMeteo(this)">🌧️ Pluie</div>
+        <div class="meteo-btn" onclick="togMeteo(this)">🌫️ Brouillard</div>
+        <div class="meteo-btn" onclick="togMeteo(this)">🌙 Nuit</div>
+        <div class="meteo-btn" onclick="togMeteo(this)">💨 Vent fort</div>
+        <div class="meteo-btn" onclick="togMeteo(this)">🔥 Chaleur</div>
+      </div>
+    </div>
+    <div class="sh">Actions rapides</div>
+    <button onclick="go('val-collective')" style="width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;background:linear-gradient(135deg,rgba(0,212,180,.12),rgba(0,212,180,.06));border:1.5px solid rgba(0,212,180,.35);border-radius:var(--r);cursor:pointer;margin-bottom:10px;-webkit-user-select:none;text-align:left">
+      <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,212,180,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚡</div>
+      <div style="flex:1"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--accent)">Grille collective</div><div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t2);margin-top:2px">Compétences × stagiaires • tap pour cycler</div></div>
+      <div style="font-size:18px;color:var(--t3)">›</div>
+    </button>
+    <div class="sh">Stagiaires à évaluer</div>
+    <div id="sess-stag-list"></div>
+    <div class="sep"><span>ADMIN</span></div>
+    <button class="btn btn-danger" onclick="confirmCloture()">🔒 Clôturer la session</button>
+  </div>
+</div>
+
+<!-- ══ ÉVALUER WIZARD ══ -->
+<div class="screen" id="sc-evaluer">
+  <!-- Step 1 -->
+  <div class="wz-step on" id="wz1">
+    <div class="wz-head"><div class="wz-prog"><div class="wp cur"></div><div class="wp"></div><div class="wp"></div><div class="wp"></div></div><div class="wz-title">Qui évaluez-vous ?</div><div class="wz-hint">ÉTAPE 1/4</div></div>
+    <div class="scroll" id="wz1-list"></div>
+    <div class="wz-foot"><button class="wz-back" onclick="go('dashboard')">✕</button><button class="wz-next btn-blue" onclick="wz(2)">Mise en situation →</button></div>
+  </div>
+  <!-- Step 2 -->
+  <div class="wz-step" id="wz2">
+    <div class="wz-head"><div class="wz-prog"><div class="wp done"></div><div class="wp cur"></div><div class="wp"></div><div class="wp"></div></div><div class="wz-title">Mise en situation</div><div class="wz-hint" id="wz2-hint">ÉTAPE 2/4</div></div>
+    <div class="scroll">
+      <div class="sit-grid">
+        <div class="sit-c sel" data-mes="MES-01" onclick="pickMES(this)"><div class="sit-code">MES-01</div><div class="sit-name">Reconnaissance</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🔵 NRBC</div></div>
+        <div class="sit-c" data-mes="MES-02" onclick="pickMES(this)"><div class="sit-code">MES-02</div><div class="sit-name">Intervention</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🔵 TACTIQUE</div></div>
+        <div class="sit-c" data-mes="MES-03" onclick="pickMES(this)"><div class="sit-code">MES-03</div><div class="sit-name">Extraction</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🔵 TACTIQUE</div></div>
+        <div class="sit-c" data-mes="MES-04" onclick="pickMES(this)"><div class="sit-code">MES-04</div><div class="sit-name">Décontamination</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🔵 NRBC</div></div>
+        <div class="sit-c" data-mes="MES-05" onclick="pickMES(this)"><div class="sit-code">MES-05</div><div class="sit-name">TPN Victime</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🔴 MÉDICAL</div></div>
+        <div class="sit-c" data-mes="MES-06" onclick="pickMES(this)"><div class="sit-code">MES-06</div><div class="sit-name">Commandement</div><div style="font-size:10px;color:var(--t3);margin-top:3px">🟡 CMD</div></div>
+      </div>
+    </div>
+    <div class="wz-foot"><button class="wz-back" onclick="wz(1)">←</button><button class="wz-next btn-blue" onclick="wz(3)">Compétences →</button></div>
+  </div>
+  <!-- Step 3 -->
+  <div class="wz-step" id="wz3">
+    <div class="wz-head"><div class="wz-prog"><div class="wp done"></div><div class="wp done"></div><div class="wp cur"></div><div class="wp"></div></div><div class="wz-title" id="wz3-title">Compétences</div><div class="wz-hint">ÉTAPE 3/4 · Sélectionnez une famille</div></div>
+    <div class="scroll" id="wz3-scroll"></div>
+    <div class="wz-foot"><button class="wz-back" onclick="wz(2)">←</button><button class="wz-next btn-ok" onclick="wz(4)">Vérifier →</button></div>
+  </div>
+  <!-- Step 4 -->
+  <div class="wz-step" id="wz4">
+    <div class="wz-head"><div class="wz-prog"><div class="wp done"></div><div class="wp done"></div><div class="wp done"></div><div class="wp cur"></div></div><div class="wz-title">Vérification</div><div class="wz-hint">ÉTAPE 4/4 · Signature + enregistrement</div></div>
+    <div class="scroll">
+      <div class="card" style="border-color:rgba(0,212,180,.2);margin-bottom:11px" id="wz4-recap"></div>
+      <div class="sh">Signature du stagiaire</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);margin-bottom:7px;letter-spacing:1px">Le stagiaire confirme avoir pris connaissance de son évaluation.</div>
+      <div class="sig-wrap"><canvas class="sig-cv" id="sig-cv"></canvas><button class="sig-clear" onclick="clearSig()">Effacer</button></div>
+      <textarea class="inp" style="resize:none;min-height:52px;margin-top:6px" id="wz4-comment" placeholder="Commentaire (optionnel)…"></textarea>
+    </div>
+    <div class="wz-foot"><button class="wz-back" onclick="wz(3)">← Corriger</button><button class="wz-next btn-ok" id="btn-save" onclick="saveEval()">💾 Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- ══ GRILLE COLLECTIVE ══ -->
+<div class="screen" id="sc-val-collective">
+  <div class="topbar">
+    <div style="flex:1;min-width:0"><div class="tb-title">Grille collective</div><div class="tb-sub">TAP POUR CYCLER ⬜→🔴→🟠→🟢</div></div>
+    <button class="back-btn" style="padding:0;margin:0;flex-shrink:0" onclick="go('session')">‹ Retour</button>
+  </div>
+  <div style="padding:6px 12px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px" id="vc-counter">0 case remplie</span>
+    <button style="padding:5px 14px;background:var(--accent);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:#000;cursor:pointer" onclick="saveGrid()">💾 Enregistrer</button>
+  </div>
+  <div class="scroll" id="vc-scroll"></div>
+</div>
+
+<!-- ══ STAGIAIRES ══ -->
+<div class="screen" id="sc-stagiaires">
+  <div class="topbar"><div><div class="tb-title">Stagiaires</div><div class="tb-sub">PROMOTION EN COURS</div></div></div>
+  <div class="scroll">
+    <div class="sh">Promotion</div>
+    <div id="stag-list"></div>
+  </div>
+</div>
+
+<!-- ══ FICHE STAGIAIRE ══ -->
+<div class="screen" id="sc-fiche">
+  <div id="fiche-hdr" style="background:var(--s1);border-bottom:1px solid var(--b1);padding:12px 13px;display:flex;align-items:center;gap:10px;flex-shrink:0"></div>
+  <div style="padding:9px 12px 0;flex-shrink:0">
+    <button class="back-btn" onclick="go('stagiaires')">‹ Retour</button>
+    <div class="tabs">
+      <button class="tbt on" onclick="ficheTab(this,'fc-c',['fc-c','fc-t'])">Compétences</button>
+      <button class="tbt" onclick="ficheTab(this,'fc-t',['fc-c','fc-t'])">Timeline</button>
+    </div>
+  </div>
+  <div id="fc-c" class="scroll" style="padding-top:4px"></div>
+  <div id="fc-t" class="scroll" style="display:none;padding-top:4px"></div>
+</div>
+
+<!-- ══ RETEX LISTE ══ -->
+<div class="screen" id="sc-rex-list">
+  <div class="topbar"><div><div class="tb-title">Retex</div><div class="tb-sub">RETOUR D'EXPÉRIENCE</div></div></div>
+  <div class="scroll">
+    <div style="font-size:13px;color:var(--t2);margin-bottom:12px;line-height:1.5">Sélectionnez la mise en situation.</div>
+    <div class="row" onclick="goRex('MES-01','Reconnaissance')"><div style="width:36px;height:36px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔍</div><div class="ri"><div class="rn">MES-01 · Reconnaissance</div></div><div class="chev">›</div></div>
+    <div class="row" onclick="goRex('MES-02','Intervention')"><div style="width:36px;height:36px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">⚡</div><div class="ri"><div class="rn">MES-02 · Intervention</div></div><div class="chev">›</div></div>
+    <div class="row" onclick="goRex('MES-03','Extraction')"><div style="width:36px;height:36px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🚁</div><div class="ri"><div class="rn">MES-03 · Extraction</div></div><div class="chev">›</div></div>
+    <div class="row" onclick="goRex('MES-04','Décontamination')"><div style="width:36px;height:36px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🧪</div><div class="ri"><div class="rn">MES-04 · Décontamination</div></div><div class="chev">›</div></div>
+  </div>
+</div>
+
+<!-- ══ RETEX FORMULAIRE ══ -->
+<div class="screen" id="sc-rex-form">
+  <div class="topbar"><div><div class="tb-title" id="rex-ftitle">Retex</div><div class="tb-sub">DÉPOSER UN RETEX</div></div></div>
+  <div class="scroll">
+    <button class="back-btn" onclick="go('rex-list')">‹ Retour</button>
+    <div class="rex-block"><div class="rex-head"><span>⚖️</span>La mise en situation était…</div>
+      <div class="diff-row">
+        <div class="diff-b sf" id="rdf" onclick="pickDiff('facile')">Trop facile</div>
+        <div class="diff-b sc" id="rdc" onclick="pickDiff('calibree')">Bien calibrée</div>
+        <div class="diff-b" id="rdd" onclick="pickDiff('difficile')">Trop difficile</div>
+      </div>
+    </div>
+    <div class="rex-block"><div class="rex-head"><span>🔧</span>Matériel manquant ou inadapté</div><textarea class="rex-ta" id="rex-mat" placeholder="Ex : détecteur en panne…"></textarea></div>
+    <div class="rex-block"><div class="rex-head"><span>💡</span>Ce qu'on pourrait améliorer</div><textarea class="rex-ta" id="rex-amel" placeholder="Suggestions pour enrichir cette MES…"></textarea></div>
+    <div class="rex-block"><div class="rex-head"><span>🌤</span>Conditions terrain</div><textarea class="rex-ta" id="rex-terr" placeholder="Météo, luminosité, contraintes…"></textarea></div>
+    <div class="rex-block"><div class="rex-head"><span>📝</span>Commentaire libre</div><textarea class="rex-ta" id="rex-lib" placeholder="Tout ce qui mérite d'être noté…"></textarea></div>
+    <button class="btn btn-accent" onclick="saveRetex()" style="margin-top:4px">💾 Enregistrer le retex</button>
+  </div>
+</div>
+
+<!-- ══ PARAMÈTRES ══ -->
+<div class="screen" id="sc-params">
+  <div class="topbar"><div><div class="tb-title">Paramètres</div><div class="tb-sub">EVAL·NRBC IS</div></div></div>
+  <div class="scroll">
+    <div style="margin-bottom:14px">
+      <div class="p-sec">Session</div>
+      <div class="p-row" style="cursor:pointer" onclick="S.session?go('session'):null">
+        <div><div class="p-lbl">Session en cours</div><div class="p-sub" id="p-sess-sub">Aucune session active</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="p-row" style="cursor:pointer" onclick="creerSession()">
+        <div><div class="p-lbl">+ Créer une session</div><div class="p-sub">Ouvrir une nouvelle session</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();creerSession()">+ New</button>
+      </div>
+      <div class="p-row" id="params-hist-btn" style="cursor:pointer" onclick="go('historique')">
+        <div><div class="p-lbl">📋 Historique des sessions</div><div class="p-sub">Voir et gérer toutes les sessions</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="p-row" id="params-reinit-btn" style="cursor:pointer;display:none" onclick="reinitialiserSession()">
+        <div><div class="p-lbl" style="color:var(--danger)">🗑 Tout réinitialiser</div><div class="p-sub">Supprime toutes sessions + évaluations</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="p-sec">Stagiaires</div>
+      <div class="p-row" style="cursor:pointer" onclick="go('stagiaires')">
+        <div><div class="p-lbl">Gérer la promotion</div><div class="p-sub" id="p-stag-sub">— stagiaires</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="p-row" style="cursor:pointer" onclick="showAddStag()">
+        <div><div class="p-lbl">+ Ajouter un stagiaire</div><div class="p-sub">Créer un accès stagiaire</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showAddStag()">+ New</button>
+      </div>
+    </div>
+    <div style="margin-bottom:14px" id="params-inst-section">
+      <div class="p-sec">Instructeurs</div>
+      <div id="params-inst-list" style="margin-bottom:6px"></div>
+      <div class="p-row" style="cursor:pointer" onclick="showAddInst()">
+        <div><div class="p-lbl">+ Ajouter un instructeur</div><div class="p-sub">Créer un accès PIN</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showAddInst()">+ New</button>
+      </div>
+    </div>
+    <div id="params-export-section" style="display:none;margin-bottom:14px">
+      <div class="p-sec">Export des données</div>
+      <div class="p-row" style="cursor:pointer" onclick="exportCSV('evaluations')">
+        <div><div class="p-lbl">📊 Exporter les évaluations</div><div class="p-sub">Toutes les évaluations — format CSV</div></div>
+        <button class="btn btn-ghost btn-sm">CSV</button>
+      </div>
+      <div class="p-row" style="cursor:pointer" onclick="exportCSV('stagiaires')">
+        <div><div class="p-lbl">👥 Exporter les stagiaires</div><div class="p-sub">Liste complète avec codes d'accès</div></div>
+        <button class="btn btn-ghost btn-sm">CSV</button>
+      </div>
+      <div class="p-row" style="cursor:pointer" onclick="exportCSV('retex')">
+        <div><div class="p-lbl">💬 Exporter les retex</div><div class="p-sub">Tous les retours d'expérience</div></div>
+        <button class="btn btn-ghost btn-sm">CSV</button>
+      </div>
+    </div>
+    <div>
+      <div class="p-sec">Système</div>
+      <div class="p-row"><div><div class="p-lbl">Version</div><div class="p-sub">EVAL·NRBC IS · v1.0</div></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t3)">v1.0</span></div>
+      <div class="p-row" style="cursor:pointer" onclick="logout()"><div><div class="p-lbl" style="color:var(--danger)">Se déconnecter</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORIQUE ══ -->
+<div class="screen" id="sc-historique">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="go('dashboard')" style="background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;padding:0 4px">&#8249;</button>
+      <div><div class="tb-title">Historique</div><div class="tb-sub">Toutes les sessions</div></div>
+    </div>
+  </div>
+  <div class="scroll" id="hist-list"></div>
+</div>
+
+<!-- ══ VUE STAGIAIRE ══ -->
+<div class="screen" id="sc-stag-view">
+  <div class="topbar">
+    <div style="flex:1;min-width:0"><div class="tb-title">Ma progression</div><div class="tb-sub" id="sv-sub">—</div></div>
+    <button style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;flex-shrink:0;padding:4px" onclick="logout()">⏏</button>
+  </div>
+  <div style="padding:7px 11px 0;flex-shrink:0">
+    <div class="tabs">
+      <button class="tbt on" onclick="svTab(this,'sv-res',['sv-res','sv-ref'])">Mes résultats</button>
+      <button class="tbt" onclick="svTab(this,'sv-ref',['sv-res','sv-ref'])">Référentiel</button>
+    </div>
+  </div>
+  <div id="sv-res" class="scroll">
+    <div id="sv-scores" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:13px"></div>
+    <div class="sh">Compétences</div>
+    <div id="sv-detail"></div>
+    <div class="sh" style="margin-top:10px">Historique</div>
+    <div id="sv-history" class="tl"></div>
+  </div>
+  <div id="sv-ref" class="scroll" style="display:none">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;margin-bottom:11px;line-height:1.5">Référentiel complet. Cliquez pour voir les sous-compétences.</div>
+    <div id="sv-ref-content"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- TOOLTIP -->
+<div class="tip-ov" id="tip-ov" onclick="hideTip()">
+  <div class="tip-box" onclick="event.stopPropagation()">
+    <div class="tip-title" id="tip-title"></div>
+    <div id="tip-subs"></div>
+    <button style="width:100%;margin-top:11px;padding:11px;background:var(--s2);border:1px solid var(--b1);border-radius:10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--t2);cursor:pointer" onclick="hideTip()">Fermer</button>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="cfm-ov"><div id="cfm-box">
+  <div id="cfm-msg" style="font-size:15px;color:var(--t1);margin-bottom:14px;line-height:1.5"></div>
+  <div id="cfm-btns" style="display:flex;gap:8px"></div>
+</div></div>
+
+<!-- MODAL -->
+<div id="modal-ov"><div id="modal-box"></div></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   ⚙️  CONFIG — REMPLACEZ CES DEUX LIGNES AVEC VOS VALEURS
+═══════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://uofrjnxtobaciqpaprzd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvZnJqbnh0b2JhY2lxcGFwcnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NDgwMjcsImV4cCI6MjA4ODMyNDAyN30.rLBKNvJPCqVUNRDUJX0UwddKF2ai_m8f7XhBKbhZLvk';
+
+/* ═══════════════════════════════════════════════════════════
+   DONNÉES COMPÉTENCES
+═══════════════════════════════════════════════════════════ */
+const FAM = [
+  {id:'ops',cls:'f-ops',icon:'🛡️',code:'OPS NRBC',name:'Opérations',color:'var(--accent)',
+   comps:[
+    {n:'Maîtriser la mise en œuvre du masque FM53 / OC50',s:['Mettre en œuvre le masque individuel et tester l\'étanchéité','Basculer de filtrant vers ARI']},
+    {n:'Appliquer le protocole d\'habillage de la tenue NRBC',s:['Respecter l\'ordre d\'habillage prescrit','Connaître les limites d\'utilisation','Mise en œuvre de l\'ARI de dotation']},
+    {n:'Appliquer les conduites à tenir en milieu vicié',s:['Connaître les principaux risques NRBC','Identifier les effets R, B, C','Conditions d\'utilisation des tenues et matériels']},
+    {n:'Évoluer en tenue de protection sur zone contaminée',s:['Maîtrise des conduites à tenir spécifiques','Sensibilisation aux appareils de détection']},
+    {n:'Effectuer une décontamination d\'urgence',s:['Appliquer le protocole de décontamination d\'urgence','Connaître les moyens disponibles']},
+    {n:'Utiliser les moyens de détection en dotation',s:['Utiliser le matériel adapté à l\'environnement','Utiliser la documentation technique','Interpréter les résultats','Maîtriser la détection liquide']},
+    {n:'Vérifier les EPI avant entrée en zone viciée',s:['Vérifier l\'interfaçage tenue / accessoires','Vérifier l\'efficacité de l\'appareil respiratoire','Prise en compte par le secrétariat de zone']},
+    {n:'Détecter un risque NRBC (nature et source)',s:['Rendre compte dans le groupe et à la VH','Appliquer les conduites à tenir NRBC']},
+    {n:'Mettre en œuvre une armurerie sale',s:['Anticiper la sortie de zone','Préparer l\'arrivée d\'une équipe dédiée']},
+  ]},
+  {id:'peda',cls:'f-peda',icon:'📚',code:'PÉDAGOGIE',name:'Pédagogie',color:'var(--blue)',
+   comps:[
+    {n:'Maîtrise de l\'utilisation des EPI',s:['Démontrer la mise en œuvre des EPI','Corriger les erreurs des stagiaires']},
+    {n:'Savoir dispenser une séance d\'instruction',s:['Évaluer les compétences acquises','Dispenser une formation théorique NRBC','Actualiser ses connaissances']},
+    {n:'Conduire l\'instruction à destination des militaires IS',s:['Concevoir une séance pratique avec objectifs pédagogiques','Créer un dossier d\'exercice','Évaluer et réajuster']},
+    {n:'Valider l\'instruction théorique et pratique avec EPI',s:['Contrôler la maîtrise théorique','Valider les gestes pratiques avec EPI']},
+  ]},
+  {id:'mrt',cls:'f-mrt',icon:'🗺️',code:'MRT NRBC',name:'MRT NRBC',color:'var(--warn)',
+   comps:[
+    {n:'Connaissance des bases de données opérationnelles',s:['Appliquer la MRT NRBC','Prendre les mesures conservatoires','Formuler des recommandations tactiques']},
+    {n:'Participer au RETEX NRBC IS',s:['Rendre compte à la cellule NRBC du GIGN','Servir de point de contact']},
+    {n:'Réaliser un briefing sécurité sur les risques NRBC',s:['Rappeler les conduites en milieu vicié','Définir le niveau de protection adapté','Évaluer les risques potentiels']},
+    {n:'Connaissance et interaction avec les partenaires NRBC',s:['Connaître les intervenants extérieurs','Intervenir en autonomie sur risque NRBC','Organiser des exercices']},
+  ]},
+  {id:'mat',cls:'f-mat',icon:'🔧',code:'MATÉRIEL',name:'Matériel',color:'var(--purple)',
+   comps:[
+    {n:'Assurer le MCO du matériel NRBC en dotation',s:['Utiliser RESANA et logiciels disponibles','Appliquer les consignes de la cellule NRBC GIGN','Effectuer les contrôles dans les délais','Organiser le stockage']},
+    {n:'Utiliser le compresseur HP pour gonflage ARI',s:['Connaître la réglementation équipements sous pression','Maîtriser le protocole de gonflage ARI','Maîtriser l\'analyse d\'air respirable']},
+  ]},
+];
+const NL=['N/E','Non','Cours','Acquis'];
+const NC=['n0','n1','n2','n3'];
+const CY=['·','🔴','🟠','🟢'];
+const STAG_COLORS=['var(--accent)','var(--blue)','var(--warn)','var(--purple)','var(--danger)'];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+const S={
+  user:null, session:null,
+  stagiaires:[], evals:[],
+  wz:{stagId:null,stagNom:'',mes:'MES-01',notes:{}},
+  ficheId:null, retexMes:'MES-01', retexDiff:'calibree',
+  chronoStart:null, chronoIv:null,
+  gridNotes:{},
+};
+let sb=null;
+
+// Client Supabase léger — fetch natif, pas de dépendance CDN
+const SB = {
+  url: SUPABASE_URL,
+  key: SUPABASE_KEY,
+  async query(table, select, filters){
+    let url = this.url+'/rest/v1/'+table+'?select='+(select||'*');
+    if(filters) Object.entries(filters).forEach(([k,v])=>url+='&'+k+'=eq.'+encodeURIComponent(v));
+    url += '&order=created_at.asc';
+    const r = await fetch(url, {
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': 'application/json'
+      }
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status+' '+await r.text());
+    return r.json();
+  },
+  async insert(table, row){
+    const r = await fetch(this.url+'/rest/v1/'+table, {
+      method:'POST',
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(row)
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status+' '+await r.text());
+    return r.json();
+  },
+  async update(table, row, match){
+    let url = this.url+'/rest/v1/'+table+'?';
+    Object.entries(match).forEach(([k,v])=>url+=k+'=eq.'+encodeURIComponent(v)+'&');
+    const r = await fetch(url, {
+      method:'PATCH',
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(row)
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status+' '+await r.text());
+    return r.json();
+  },
+  async delete(table, match){
+    let url = this.url+'/rest/v1/'+table+'?';
+    Object.entries(match).forEach(([k,v])=>url+=k+'=eq.'+encodeURIComponent(v)+'&');
+    const r = await fetch(url, {
+      method:'DELETE',
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': 'application/json'
+      }
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return true;
+  },
+  async deleteAll(table){
+    const url = this.url+'/rest/v1/'+table+'?id=neq.00000000-0000-0000-0000-000000000000';
+    const r = await fetch(url, {
+      method:'DELETE',
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': 'application/json'
+      }
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return true;
+  },
+  async uploadPhoto(file, path){
+    const url = this.url+'/storage/v1/object/photos/'+path;
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{
+        'apikey': this.key,
+        'Authorization': 'Bearer '+this.key,
+        'Content-Type': file.type,
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+    if(!r.ok) throw new Error('Upload HTTP '+r.status);
+    return this.url+'/storage/v1/object/public/photos/'+path;
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   SUPABASE HELPERS
+═══════════════════════════════════════════════════════════ */
+async function dbGet(table,query){
+  try{
+    return await SB.query(table, query||'*');
+  }catch(e){console.warn('dbGet error:',table,e);return[];}
+}
+async function dbInsert(table,row){
+  const data = await SB.insert(table, row);
+  return Array.isArray(data)?data:[data];
+}
+async function dbUpdate(table,row,match){
+  await SB.update(table, row, match);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════ */
+async function boot(){
+  // Afficher l'app immédiatement, charger données en arrière-plan
+  setLoad(100,'Prêt');
+  showApp();
+  // Chargement silencieux après affichage
+  try{
+    S.stagiaires = await SB.query('stagiaires','*');
+  }catch(e){}
+  try{
+    const allSess = await SB.query('sessions','*');
+    const open = (allSess||[]).filter(s=>s.statut==='ouverte')
+      .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    S.session = open[0]||null;
+  }catch(e){}
+}
+function setLoad(p,m){
+  document.getElementById('ld-fill').style.width=p+'%';
+  document.getElementById('ld-msg').textContent=m;
+}
+function showApp(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='flex';
+  const nav=document.getElementById('global-nav');
+  if(nav)nav.style.display='none';
+  go('login');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('sc-'+id);
+  if(!el)return;
+  el.classList.add('active');
+  // Mettre à jour la sidebar
+  document.querySelectorAll('#global-nav .ni').forEach(b=>b.classList.remove('on'));
+  const navMap={'dashboard':'gnav-dashboard','evaluer':'gnav-evaluer','stagiaires':'gnav-stagiaires','rex-list':'gnav-rex-list','params':'gnav-params','session':'gnav-dashboard','val-collective':'gnav-evaluer','fiche':'gnav-stagiaires','rex-form':'gnav-rex-list','stag-view':'gnav-dashboard','historique':'gnav-dashboard'};
+  const nb=document.getElementById(navMap[id]);
+  if(nb)nb.classList.add('on');
+  // Cacher la sidebar sur login
+  const nav=document.getElementById('global-nav');
+  if(nav)nav.style.display=(id==='login'||id==='stag-view')?'none':'flex';
+  ({
+    dashboard:renderDashboard,
+    session:renderSession,
+    evaluer:()=>{wz(1);renderWz1();},
+    stagiaires:renderStagiaires,
+    'val-collective':renderGrid,
+    params:renderParams,
+    'stag-view':renderStagView,
+    'rex-list':()=>{},
+    historique:renderHistorique,
+  }[id]||function(){})();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════════════════════ */
+let LT='inst',PIN='';
+function setLT(t){
+  LT=t;PIN='';updDots();
+  document.getElementById('tt-i').classList.toggle('on',t==='inst');
+  document.getElementById('tt-s').classList.toggle('on',t==='stag');
+  document.getElementById('pin-z').style.display=t==='inst'?'flex':'none';
+  document.getElementById('code-z').style.display=t==='stag'?'block':'none';
+}
+function pp(d){if(PIN.length>=6)return;PIN+=d;updDots();if(PIN.length===6)setTimeout(loginInst,150);}
+function pd(){PIN=PIN.slice(0,-1);updDots();}
+function updDots(){document.querySelectorAll('.pd').forEach((d,i)=>d.classList.toggle('on',i<PIN.length));}
+
+async function loginInst(){
+  try{
+    const rows=await SB.query('instructeurs','*');
+    const found=rows.find(r=>r.pin===PIN);
+    if(found){
+      S.user={type:'inst',data:found};
+      PIN='';updDots();
+      applyRoleUI(found.role||'permanent');
+      go('dashboard');
+    }else{showToast('PIN incorrect',true);PIN='';updDots();}
+  }catch(e){
+    S.user={type:'inst',data:{id:'demo',nom:'MARTIN',prenom:'Pierre',grade:'Adj',role:'superadmin'}};
+    applyRoleUI('superadmin');
+    go('dashboard');
+  }
+}
+
+function applyRoleUI(role){
+  // Badge sur l'écran de login (flash bref)
+  const rb=document.getElementById('role-badge');
+  const cfg={
+    superadmin:{label:'SUPER ADMIN',bg:'rgba(255,214,10,.15)',color:'#ffd60a',border:'rgba(255,214,10,.4)'},
+    permanent:{label:'PERMANENT',bg:'rgba(0,212,180,.12)',color:'var(--accent)',border:'rgba(0,212,180,.35)'},
+    detache:{label:'DÉTACHÉ',bg:'rgba(30,143,255,.12)',color:'var(--blue)',border:'rgba(30,143,255,.35)'},
+  };
+  const c=cfg[role]||cfg.permanent;
+  if(rb){rb.textContent=c.label;rb.style.cssText=`display:block;background:${c.bg};color:${c.color};border:1px solid ${c.border};padding:4px 14px;border-radius:20px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px`;}
+  // Masquer certains éléments pour les détachés
+  const isDetache=role==='detache';
+  const isSuperAdmin=role==='superadmin';
+  // Params : détaché ne voit pas la gestion comptes
+  const navParams=document.getElementById('nav-params-btn');
+  if(navParams)navParams.style.display=isDetache?'none':'flex';
+  // Super admin : badge doré dans params
+  S.userRole=role;
+}
+async function loginStag(){
+  const code=document.getElementById('stag-inp').value.trim().toUpperCase();
+  if(!code)return;
+  try{
+    const rows=await SB.query('stagiaires','*'); 
+    const found=rows.find(r=>r.code_acces===code)||S.stagiaires.find(r=>r.code_acces===code);
+    if(found){S.user={type:'stag',data:found};go('stag-view');}
+    else showToast('Code inconnu',true);
+  }catch(e){showToast('Erreur connexion',true);}
+}
+function logout(){
+  S.user=null;
+  if(S.chronoIv){clearInterval(S.chronoIv);S.chronoIv=null;}
+  const nav=document.getElementById('global-nav');
+  if(nav)nav.style.display='none';
+  go('login');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════════════ */
+async function renderDashboard(){
+  if(!S.user)return;
+  const u=S.user.data;
+  document.getElementById('dash-chip').textContent=u.grade+' '+u.nom;
+  const roleLabels={superadmin:'SUPER ADMIN',permanent:'PERMANENT',detache:'DÉTACHÉ'};
+  const roleColors={superadmin:'var(--gold)',permanent:'var(--accent)',detache:'var(--blue)'};
+  const role=u.role||'permanent';
+  const chip=document.getElementById('dash-chip');
+  chip.textContent=u.grade+' '+u.nom+' · '+(roleLabels[role]||role.toUpperCase());
+  chip.style.color=roleColors[role]||'var(--accent)';
+  chip.style.borderColor=(roleColors[role]||'var(--accent)').replace('var(','').replace(')','');
+  document.getElementById('stat-stag').textContent=S.stagiaires.length||0;
+
+  // Recharger depuis DB si possible
+  try{
+    const es=await SB.query('evaluations','id');
+    document.getElementById('stat-eval').textContent=(es||[]).length;
+    const ss=await SB.query('sessions','id');
+    document.getElementById('stat-sess').textContent=(ss||[]).length;
+  }catch(e){}
+
+  // Banner session
+  const banner=document.getElementById('dash-banner');
+  if(S.session){
+    const inst=S.session.instructeurs;
+    const instNom=inst?inst.grade+' '+inst.nom:'—';
+    const mins=Math.floor((Date.now()-new Date(S.session.created_at))/60000);
+    banner.innerHTML=`<div class="sess-banner" onclick="go('session')">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div class="live-dot"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ok);letter-spacing:2px">SESSION EN COURS</span></div>
+      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--t1);margin-bottom:3px">${S.session.titre}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t2)">Ouverte par ${instNom} · il y a ${mins} min</div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:9px">
+        <button class="btn btn-blue" style="width:auto;padding:6px 14px;font-size:13px">Rejoindre →</button>
+      </div>
+    </div>`;
+  }else{
+    banner.innerHTML=`<div style="background:var(--s2);border:1.5px dashed var(--b2);border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;cursor:pointer" onclick="creerSession()">
+      <div style="font-size:22px;margin-bottom:5px">&#10133;</div>
+      <div style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:var(--t2)">Créer une session</div>
+      <div style="font-size:9px;color:var(--t3);margin-top:3px">Aucune session active</div>
+    </div>
+    <div style="text-align:right;margin-bottom:8px">
+      <button onclick="go('historique')" style="background:none;border:1px solid var(--b2);border-radius:8px;padding:5px 12px;color:var(--t2);font-size:9px;cursor:pointer">VOIR HISTORIQUE</button>
+    </div>`;
+  }
+
+  // Contenu selon rôle
+  role=S.user.data.role||'permanent';
+  if(role==='superadmin'){
+    // Super admin voit un bandeau doré
+    const existing=document.getElementById('superadmin-banner');
+    if(!existing){
+      const b=document.createElement('div');
+      b.id='superadmin-banner';
+      b.style.cssText='background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.25);border-radius:10px;padding:9px 12px;margin-bottom:11px;display:flex;align-items:center;gap:8px';
+      b.innerHTML='<span style="font-size:16px">👑</span><div><div style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#ffd60a">Super Admin</div><div style="font-family:monospace;font-size:8px;color:var(--t3)">Accès complet — gestion des comptes instructeurs</div></div>';
+      document.getElementById('dash-banner').after(b);
+    }
+  }
+  // Classement
+  renderRanking();
+}
+
+function renderRanking(){
+  const el=document.getElementById('dash-ranking');
+  if(!S.stagiaires.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px">Aucun stagiaire — ajoutez-en dans Paramètres</div>';return;}
+  el.innerHTML=S.stagiaires.slice(0,5).map((s,i)=>{
+    const ini=(s.nom||'??').substring(0,2).toUpperCase();
+    const col=STAG_COLORS[i%STAG_COLORS.length];
+    const photoHtml=s.photo_url?`background-image:url(${s.photo_url});background-size:cover;background-position:center`:`background:${col}22;color:${col}`;
+    const iniHtml=s.photo_url?'':ini;
+    return `<div class="row" onclick="showFiche('${s.id}')">
+      <div class="av" style="${photoHtml}">${iniHtml}</div>
+      <div class="ri"><div class="rn">${s.grade} ${s.nom} ${s.prenom}</div><div class="rm">${s.code_acces}</div></div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SESSION
+═══════════════════════════════════════════════════════════ */
+function renderSession(){
+  if(!S.session){go('dashboard');showToast('Aucune session active');return;}
+  document.getElementById('sess-title-tb').textContent=S.session.titre;
+  if(!S.chronoStart)S.chronoStart=new Date(S.session.created_at);
+  if(!S.chronoIv){
+    S.chronoIv=setInterval(()=>{
+      const secs=Math.floor((Date.now()-S.chronoStart)/1000);
+      const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),sc=secs%60;
+      const el=document.getElementById('sess-chrono');
+      if(el)el.textContent=(h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0');
+    },1000);
+  }
+  // Stagiaires
+  const el=document.getElementById('sess-stag-list');
+  const total=S.stagiaires.length;
+  document.getElementById('sess-prog-txt').textContent='0/'+total;
+  document.getElementById('sess-prog-bar').style.width='0%';
+  if(!total){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px">Aucun stagiaire</div>';return;}
+  el.innerHTML=S.stagiaires.map((s,i)=>{
+    const ini=(s.nom||'??').substring(0,2).toUpperCase();
+    const col=STAG_COLORS[i%STAG_COLORS.length];
+    const badge=i===0?'<span class="badge bd-done">✓ Fait</span>':i===1?'<span class="badge bd-wip">⏳ En cours</span>':'<span class="badge bd-todo">À faire</span>';
+    return `<div class="row" style="gap:9px" onclick="evalDepuisSess('${s.id}')">
+      <div class="av av-sm" style="background:${col}22;color:${col}">${ini}</div>
+      <div class="ri"><div class="rn">${s.grade} ${s.nom} ${s.prenom}</div></div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+function togMeteo(btn){
+  btn.closest('.meteo-row').querySelectorAll('.meteo-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.toggle('sel');
+}
+
+async function creerSession(){
+  const titre=`SIT-01 · Reconnaissance NRBC`;
+  try{
+    const rows=await dbInsert('sessions',{titre,mise_en_situation:'MES-01',instructeur_id:S.user?.data?.id||null,statut:'ouverte'});
+    S.session=rows[0];
+  }catch(e){
+    S.session={id:'demo-'+Date.now(),titre,mise_en_situation:'MES-01',created_at:new Date().toISOString(),instructeurs:{grade:S.user?.data?.grade||'',nom:S.user?.data?.nom||'DEMO'}};
+  }
+  showToast('✓ Session créée');go('session');
+}
+
+function confirmCloture(){
+  confirm2('Clôturer la session ?',async()=>{
+    try{await dbUpdate('sessions',{statut:'cloturee',closed_at:new Date().toISOString()},{id:S.session.id});}catch(e){}
+    S.session=null;if(S.chronoIv){clearInterval(S.chronoIv);S.chronoIv=null;}
+    showToast('✓ Session clôturée');go('dashboard');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WIZARD ÉVALUATION
+═══════════════════════════════════════════════════════════ */
+function wz(n){
+  document.querySelectorAll('#sc-evaluer .wz-step').forEach(s=>s.classList.remove('on'));
+  const s=document.getElementById('wz'+n);if(s)s.classList.add('on');
+  if(n===3)renderWz3();
+  if(n===4)renderWz4();
+}
+function renderWz1(){
+  const el=document.getElementById('wz1-list');
+  if(!S.stagiaires.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px;line-height:1.8">Aucun stagiaire.<br>Ajoutez-en dans Paramètres.</div>';return;}
+  el.innerHTML=S.stagiaires.map((s,i)=>{
+    const ini=(s.nom||'??').substring(0,2).toUpperCase();
+    const col=STAG_COLORS[i%STAG_COLORS.length];
+    const sel=S.wz.stagId===s.id;
+    return `<div class="pick${sel?' sel':''}" onclick="pickStag('${s.id}','${s.grade} ${s.nom} ${s.prenom}',this)">
+      <div class="pick-chk">${sel?'✓':''}</div>
+      <div class="av av-sm" style="background:${col}22;color:${col}">${ini}</div>
+      <div style="font-weight:600;font-size:14px;flex:1">${s.grade} ${s.nom} ${s.prenom}</div>
+    </div>`;
+  }).join('');
+}
+function pickStag(id,nom,el){
+  S.wz.stagId=id;S.wz.stagNom=nom;
+  document.querySelectorAll('#wz1-list .pick').forEach(p=>{p.classList.remove('sel');p.querySelector('.pick-chk').textContent='';});
+  el.classList.add('sel');el.querySelector('.pick-chk').textContent='✓';
+  document.getElementById('wz2-hint').textContent='ÉTAPE 2/4 · '+nom.split(' ').slice(-2).join(' ');
+}
+function pickMES(el){
+  document.querySelectorAll('.sit-c').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel');S.wz.mes=el.dataset.mes;
+}
+function evalDepuisSess(stagId){
+  const s=S.stagiaires.find(x=>x.id===stagId);
+  if(s){S.wz.stagId=stagId;S.wz.stagNom=s.grade+' '+s.nom+' '+s.prenom;}
+  go('evaluer');wz(3);
+}
+function renderWz3(){
+  document.getElementById('wz3-title').textContent=(S.wz.stagNom.split(' ').pop()||'?')+' — '+S.wz.mes;
+  document.getElementById('wz3-scroll').innerHTML=buildFamGrid('ev',true);
+}
+function renderWz4(){
+  const noted=Object.keys(S.wz.notes).length;
+  const acq=Object.values(S.wz.notes).filter(v=>v===3).length;
+  const total=FAM.reduce((a,f)=>a+f.comps.length,0);
+  document.getElementById('wz4-recap').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+      <div class="av" style="background:rgba(0,212,180,.12);color:var(--accent)">${(S.wz.stagNom.substring(0,2)||'??').toUpperCase()}</div>
+      <div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px">${S.wz.stagNom}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--t2)">${S.wz.mes}</div></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(50,215,75,.1);color:var(--ok);border:1px solid rgba(50,215,75,.3)">${acq} acquis</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(74,86,104,.15);color:var(--t2);border:1px solid var(--b1)">${noted} notées / ${total}</span>
+    </div>`;
+  setTimeout(()=>initSig(),50);
+}
+async function saveEval(){
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true;btn.textContent='Enregistrement…';
+  try{
+    const evalRow=await dbInsert('evaluations',{
+      session_id:S.session?.id||null,
+      stagiaire_id:S.wz.stagId,
+      instructeur_id:S.user?.data?.id||null,
+      mise_en_situation:S.wz.mes,
+      commentaire:document.getElementById('wz4-comment').value,
+      statut:'validee'
+    });
+    const notes=Object.entries(S.wz.notes).map(([key,val])=>{
+      const[fam,ci]=key.split('-');
+      return{evaluation_id:evalRow[0].id,famille_id:fam,comp_index:parseInt(ci),note:val};
+    });
+    if(notes.length)await dbInsert('notes_competences',notes);
+  }catch(e){/* mode démo silencieux */}
+  showToast('✓ Évaluation enregistrée');
+  S.wz={stagId:null,stagNom:'',mes:'MES-01',notes:{}};
+  btn.disabled=false;btn.textContent='💾 Enregistrer';
+  go('dashboard');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FAMILLES
+═══════════════════════════════════════════════════════════ */
+function buildFamGrid(prefix,withNotes){
+  let h='<div class="fam-grid">';
+  FAM.forEach(f=>{
+    h+=`<div class="fam-card ${f.cls}" id="${prefix}-${f.id}-c" onclick="toggleFam('${prefix}-${f.id}')">
+      <div class="fam-chev">›</div><div class="fam-icon">${f.icon}</div>
+      <div class="fam-code">${f.code}</div><div class="fam-name">${f.name}</div>
+      <div class="fam-count">${f.comps.length} compétences</div></div>`;
+  });
+  h+='</div>';
+  FAM.forEach(f=>{
+    h+=`<div class="comp-panel" id="${prefix}-${f.id}-p">`;
+    f.comps.forEach((c,ci)=>{
+      const subs=JSON.stringify(c.s).replace(/"/g,'&quot;');
+      h+=`<div class="comp-item"><div class="comp-name">${c.n}</div>
+        <button class="info-btn" onclick="event.stopPropagation();showTip('${c.n.replace(/'/g,'&#39;')}','${subs}')">ℹ</button></div>`;
+      if(withNotes){
+        const key=f.id+'-'+ci;
+        const cur=S.wz.notes[key]||0;
+        h+=`<div class="note-row">${[0,1,2,3].map(v=>`<div class="nb${cur===v?' '+NC[v]:''}" onclick="setNote('${key}',${v},this)">${v===0?'⬜':CY[v]}<br>${NL[v]}</div>`).join('')}</div>`;
+      }
+    });
+    h+='</div>';
+  });
+  return h;
+}
+function toggleFam(key){
+  const card=document.getElementById(key+'-c'),panel=document.getElementById(key+'-p');
+  if(!card||!panel)return;
+  const open=panel.classList.contains('open');
+  const scroll=card.closest('.scroll');
+  if(scroll){
+    const pfx=key.split('-').slice(0,-1).join('-');
+    FAM.forEach(f=>{
+      const p=document.getElementById(pfx+'-'+f.id+'-p');
+      const c=document.getElementById(pfx+'-'+f.id+'-c');
+      if(p)p.classList.remove('open');if(c)c.classList.remove('open');
+    });
+  }
+  if(!open){panel.classList.add('open');card.classList.add('open');setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+}
+function setNote(key,val,el){
+  S.wz.notes[key]=val;
+  el.closest('.note-row').querySelectorAll('.nb').forEach((b,i)=>{b.className='nb';if(i===val)b.classList.add(NC[val]);});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GRILLE COLLECTIVE
+═══════════════════════════════════════════════════════════ */
+function renderGrid(){
+  const scroll=document.getElementById('vc-scroll');
+  S.gridNotes={};
+  const stags=S.stagiaires.slice(0,6);
+  if(!stags.length){scroll.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px">Aucun stagiaire dans la session.</div>';return;}
+  let html='';
+  FAM.forEach(f=>{
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:6px;cursor:pointer;-webkit-user-select:none" onclick="vcTogFam('vcg-${f.id}','vch-${f.id}')">
+      <span style="font-size:16px">${f.icon}</span>
+      <div style="flex:1"><span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--t1)">${f.name}</span> <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${f.color}">${f.comps.length} comp.</span></div>
+      <span id="vch-${f.id}" style="font-size:13px;color:var(--t3);transition:transform .2s">›</span></div>`;
+    html+=`<div id="vcg-${f.id}" style="display:none;margin-bottom:10px"><div class="grid-wrap"><table class="gtable"><thead><tr>`;
+    html+=`<th class="gth-c">COMPÉTENCE</th>`;
+    stags.forEach((s,i)=>{
+      const ini=(s.nom||'??').substring(0,2).toUpperCase();
+      const col=STAG_COLORS[i%STAG_COLORS.length];
+      html+=`<th class="gth-s"><div class="gav" style="background:${col}22;color:${col}">${ini}</div><div class="glbl">${s.nom.substring(0,6)}</div></th>`;
+    });
+    html+=`</tr></thead><tbody>`;
+    f.comps.forEach((c,ci)=>{
+      html+=`<tr><td class="gcomp-td"><div class="gcomp-inner">${c.n}</div></td>`;
+      stags.forEach((s,si)=>{
+        const cid=`gcn-${f.id}-${ci}-${si}`;
+        html+=`<td class="gcell" onclick="vcCycle('${cid}','${f.id}','${ci}','${si}')"><div class="gn" id="${cid}" data-v="0">·</div></td>`;
+      });
+      html+=`</tr>`;
+    });
+    html+=`</tbody></table></div></div>`;
+  });
+  scroll.innerHTML=html;
+  document.getElementById('vc-counter').textContent='0 case remplie';
+}
+function vcTogFam(id,chevId){
+  const el=document.getElementById(id);
+  const ch=document.getElementById(chevId);
+  if(!el)return;
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  if(ch)ch.style.transform=open?'':'rotate(90deg)';
+}
+function vcCycle(cellId){
+  const el=document.getElementById(cellId);if(!el)return;
+  let v=(parseInt(el.dataset.v||'0')+1)%4;
+  el.dataset.v=v;el.textContent=v===0?'·':CY[v];
+  el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',120);
+  const total=document.querySelectorAll('#vc-scroll .gn:not([data-v="0"])').length;
+  const c=document.getElementById('vc-counter');
+  if(c)c.textContent=total+' case'+(total>1?'s':'')+' remplie'+(total>1?'s':'');
+}
+async function saveGrid(){
+  const cells=document.querySelectorAll('#vc-scroll .gn[data-v]:not([data-v="0"])');
+  const total=cells.length;
+  // Sauvegarder en DB si possible
+  showToast('✓ '+total+' note'+(total>1?'s':'')+' enregistrée'+(total>1?'s':''));
+  setTimeout(()=>go('session'),1500);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STAGIAIRES
+═══════════════════════════════════════════════════════════ */
+function renderStagiaires(){
+  const el=document.getElementById('stag-list');
+  if(!S.stagiaires.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px;line-height:1.8">Aucun stagiaire.<br>Ajoutez-en dans Paramètres.</div>';return;}
+  el.innerHTML=S.stagiaires.map((s,i)=>{
+    const ini=(s.nom||'??').substring(0,2).toUpperCase();
+    const col=STAG_COLORS[i%STAG_COLORS.length];
+    const photoStyle=s.photo_url?`background-image:url(${s.photo_url});background-size:cover;background-position:center`:`background:${col}22;color:${col}`;
+    const iniTxt=s.photo_url?'':ini;
+    return `<div class="row" onclick="showFiche('${s.id}')">
+      <div class="av" style="${photoStyle}">${iniTxt}</div>
+      <div class="ri"><div class="rn">${s.grade} ${s.nom} ${s.prenom}</div><div class="rm">Code : ${s.code_acces}</div></div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
+}
+async function showFiche(id){
+  S.ficheId=id;
+  const s=S.stagiaires.find(x=>x.id===id);if(!s)return;
+  const ini=(s.nom||'??').substring(0,2).toUpperCase();
+  const col=STAG_COLORS[S.stagiaires.indexOf(s)%STAG_COLORS.length];
+  const role=S.user?.data?.role||'permanent';
+  const canEdit=role==='superadmin'||role==='permanent';
+  document.getElementById('fiche-hdr').innerHTML=`
+    <div class="av" style="background:${col}22;color:${col};width:44px;height:44px;border-radius:10px;flex-shrink:0">${ini}</div>
+    <div style="flex:1;min-width:0"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--t1)">${s.grade} ${s.nom} ${s.prenom}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--t2);margin-top:1px">${s.code_acces}</div></div>
+    ${canEdit?`<button onclick="supprimerStagiaire('${s.id}')" style="padding:5px 10px;border-radius:8px;background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.3);color:var(--danger);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;cursor:pointer;flex-shrink:0">🗑 Supprimer</button>`:''}`;
+  // Compétences
+  const fcC=document.getElementById('fc-c');
+  fcC.innerHTML=buildFamGrid('fc',false);
+  // Timeline — charger évals depuis DB
+  const fcT=document.getElementById('fc-t');
+  try{
+    const evals=await SB.query('evaluations','id,stagiaire_id,mise_en_situation,created_at,statut'); 
+    const stagEvals=evals.filter(e=>e.stagiaire_id===id);
+    if(stagEvals.length){
+      fcT.innerHTML='<div class="tl">'+stagEvals.slice(-5).reverse().map(e=>{
+        const d=new Date(e.created_at);
+        const dl=d.getDate()+'/'+String(d.getMonth()+1).padStart(2,'0');
+        return `<div class="tli"><div class="tld" style="background:var(--ok)"></div>
+          <div class="tlc"><div class="tls">${e.mise_en_situation}</div><div class="tlm">${dl}</div></div></div>`;
+      }).join('')+'</div>';
+    }else{fcT.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px">Aucune évaluation</div>';}
+  }catch(e){fcT.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-family:\'Share Tech Mono\',monospace;font-size:9px">Chargement impossible</div>';}
+  go('fiche');
+}
+async function supprimerStagiaire(stagId){
+  S._deleteStagId=stagId;
+  document.getElementById('cfm-msg').textContent='Supprimer ce stagiaire et toutes ses evaluations ?';
+  document.getElementById('cfm-btns').innerHTML=
+    '<button class="btn btn-ghost" style="flex:1" onclick="closeCfm()">Annuler</button>'+
+    '<button class="btn btn-danger" style="flex:2" onclick="closeCfm();doSupprimerStagiaire()">Supprimer</button>';
+  document.getElementById('cfm-ov').classList.add('open');
+}
+async function doSupprimerStagiaire(){
+  const stagId=S._deleteStagId;
+  if(!stagId)return;
+  try{
+    const evals=await SB.query('evaluations','id',{stagiaire_id:stagId});
+    for(const ev of (evals||[])) await SB.delete('notes_competences',{evaluation_id:ev.id});
+    await SB.delete('evaluations',{stagiaire_id:stagId});
+    await SB.delete('stagiaires',{id:stagId});
+    S.stagiaires=S.stagiaires.filter(s=>s.id!==stagId);
+    S._deleteStagId=null;
+    showToast('Stagiaire supprime');
+    go('stagiaires');
+  }catch(e){showToast('Erreur : '+e.message,true);}
+}
+
+function ficheTab(btn,show,all){
+  all.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  document.querySelectorAll('#sc-fiche .tbt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const el=document.getElementById(show);
+  if(el)el.style.display=window.innerWidth>=768?'block':'flex';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RETEX
+═══════════════════════════════════════════════════════════ */
+let retexMes='MES-01';
+function goRex(mes,nom){
+  retexMes=mes;
+  document.getElementById('rex-ftitle').textContent=mes+' · '+nom;
+  // reset form
+  ['rex-mat','rex-amel','rex-terr','rex-lib'].forEach(id=>document.getElementById(id).value='');
+  pickDiff('calibree');
+  go('rex-form');
+}
+function pickDiff(d){
+  S.retexDiff=d;
+  document.getElementById('rdf').className='diff-b'+(d==='facile'?' sf':'');
+  document.getElementById('rdc').className='diff-b'+(d==='calibree'?' sc':'');
+  document.getElementById('rdd').className='diff-b'+(d==='difficile'?' sd':'');
+}
+async function saveRetex(){
+  try{
+    await dbInsert('retex',{
+      session_id:S.session?.id||null,
+      instructeur_id:S.user?.data?.id||null,
+      mise_en_situation:retexMes,
+      difficulte:S.retexDiff,
+      materiel_manquant:document.getElementById('rex-mat').value,
+      ameliorations:document.getElementById('rex-amel').value,
+      conditions_terrain:document.getElementById('rex-terr').value,
+      commentaire_libre:document.getElementById('rex-lib').value,
+    });
+  }catch(e){}
+  showToast('✓ Retex enregistré');go('rex-list');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PARAMÈTRES
+═══════════════════════════════════════════════════════════ */
+async function renderParams(){
+  document.getElementById('p-sess-sub').textContent=S.session?S.session.titre:'Aucune session active';
+  document.getElementById('p-stag-sub').textContent=S.stagiaires.length+' stagiaire'+(S.stagiaires.length>1?'s':'');
+  const role=S.user?.data?.role||'permanent';
+  const isSA=role==='superadmin';
+  // Cacher section instructeurs pour les détachés
+  const instSec=document.getElementById('params-inst-section');
+  if(instSec)instSec.style.display=role==='detache'?'none':'block';
+  // Bouton réinitialiser : superadmin seulement
+  const reinitBtn=document.getElementById('params-reinit-btn');
+  if(reinitBtn)reinitBtn.style.display=isSA?'flex':'none';
+  // Export : visible seulement pour super admin
+  const exportSec=document.getElementById('params-export-section');
+  if(exportSec)exportSec.style.display=role==='superadmin'?'block':'none';
+  // Super admin : charger liste instructeurs
+  if(role==='superadmin'){
+    try{
+      const insts=await dbGet('instructeurs');
+      const el=document.getElementById('params-inst-list');
+      if(el&&insts.length){
+        const roleLabels={superadmin:'👑 Super Admin',permanent:'🔵 Permanent',detache:'🟡 Détaché'};
+        el.innerHTML=insts.map(i=>`
+          <div class="p-row" style="margin-bottom:4px">
+            <div style="flex:1;min-width:0">
+              <div class="p-lbl">${i.grade} ${i.nom} ${i.prenom}</div>
+              <div class="p-sub">${roleLabels[i.role]||'Permanent'} · PIN : ${i.pin}</div>
+            </div>
+          </div>`).join('');
+      }
+    }catch(e){}
+  }
+}
+
+function showAddStag(){
+  showModal(`
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--t1);margin-bottom:14px">Nouveau stagiaire</div>
+    <div style="display:flex;justify-content:center;margin-bottom:12px">
+      <div id="m-photo-prev" onclick="document.getElementById('m-photo-inp').click()" style="width:72px;height:72px;border-radius:50%;background:var(--s2);border:2px dashed var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:24px">📷</div>
+      <input type="file" id="m-photo-inp" accept="image/*" style="display:none" onchange="previewPhoto('m-photo-prev',this)">
+    </div>
+    <label class="inp-lbl">NOM</label><input class="inp" id="m-nom" placeholder="DUPONT" style="text-transform:uppercase;margin-bottom:8px">
+    <label class="inp-lbl">CODE D'ACCÈS</label><input class="inp" id="m-code" placeholder="DUPONT-1234" style="text-transform:uppercase;margin-bottom:14px">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-accent" style="flex:2" onclick="addStag()">Créer</button>
+    </div>`);
+}
+async function addStag(){
+  const nom=document.getElementById('m-nom').value.trim().toUpperCase();
+  const code=document.getElementById('m-code').value.trim().toUpperCase();
+  if(!nom||!code){showToast('Remplissez tous les champs',true);return;}
+  try{
+    const rows=await dbInsert('stagiaires',{nom,prenom:'',grade:'',code_acces:code});
+    const newStag = rows[0];
+    // Upload photo si sélectionnée
+    const photoInput = document.getElementById('m-photo-inp');
+    if(photoInput && photoInput.files[0]){
+      const file = photoInput.files[0];
+      const ext = file.name.split('.').pop();
+      const path = 'stagiaires/'+newStag.id+'.'+ext;
+      try{
+        const url = await SB.uploadPhoto(file, path);
+        await SB.update('stagiaires',{photo_url:url},{id:newStag.id});
+        newStag.photo_url = url;
+      }catch(pe){console.error('Photo:', pe);}
+    }
+    S.stagiaires.push(newStag);
+  }catch(e){showToast('Erreur : '+e.message,true);console.error(e);return;}
+  closeModal();showToast('Stagiaire ajouté');renderParams();
+}
+
+function showAddInst(){
+  S._newRole='permanent';
+  showModal(
+    '<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:17px;color:var(--t1);margin-bottom:14px">Nouvel instructeur</div>'+
+    '<label class="inp-lbl">NOM</label><input class="inp" id="m-i-nom" placeholder="MARTIN" style="text-transform:uppercase;margin-bottom:8px">'+
+    '<label class="inp-lbl">PIN (6 CHIFFRES)</label><input class="inp" id="m-i-pin" placeholder="123456" type="number" style="letter-spacing:4px;text-align:center;margin-bottom:8px">'+
+    '<label class="inp-lbl">RÔLE</label>'+
+    '<div style="display:flex;gap:5px;margin-bottom:14px">'+
+      '<div class="diff-b" id="ri-sup" onclick="pickRole(\'superadmin\')" style="font-size:9px;padding:8px 4px">👑 Super Admin</div>'+
+      '<div class="diff-b sc" id="ri-per" onclick="pickRole(\'permanent\')" style="font-size:9px;padding:8px 4px">🔵 Permanent</div>'+
+      '<div class="diff-b" id="ri-det" onclick="pickRole(\'detache\')" style="font-size:9px;padding:8px 4px">🟡 Détaché</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Annuler</button>'+
+      '<button class="btn btn-accent" style="flex:2" onclick="addInst()">Créer</button>'+
+    '</div>'
+  );
+}
+function pickRole(r){
+  S._newRole=r;
+  ['sup','per','det'].forEach(k=>{const e=document.getElementById('ri-'+k);if(e)e.className='diff-b';});
+  const map={superadmin:'sup',permanent:'per',detache:'det'};
+  const el=document.getElementById('ri-'+(map[r]||'per'));
+  if(el)el.classList.add(r==='superadmin'?'sd':r==='detache'?'sf':'sc');
+}
+async function addInst(){
+  const nom=document.getElementById('m-i-nom').value.trim().toUpperCase();
+  const pin=document.getElementById('m-i-pin').value.trim();
+  const role=S._newRole||'permanent';
+  if(!nom){showToast('Nom requis',true);return;}
+  if(pin.length!==6){showToast('PIN de 6 chiffres requis',true);return;}
+  try{
+    await dbInsert('instructeurs',{nom,prenom:'',grade:'',pin,role});
+    closeModal();showToast('Instructeur ajouté');renderParams();
+  }catch(e){showToast('Erreur : '+e.message,true);console.error(e);}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VUE STAGIAIRE
+═══════════════════════════════════════════════════════════ */
+async function renderStagView(){
+  if(!S.user||S.user.type!=='stag')return;
+  const s=S.user.data;
+  document.getElementById('sv-sub').textContent=s.grade+' '+s.nom+' '+s.prenom;
+  // Scores par famille (données exemple)
+  const scores=[{f:'OPS',c:'var(--accent)',pct:87},{f:'PÉDA',c:'var(--blue)',pct:82},{f:'MRT',c:'var(--warn)',pct:71},{f:'MAT.',c:'var(--purple)',pct:90}];
+  document.getElementById('sv-scores').innerHTML=scores.map(x=>`
+    <div style="background:${x.c}11;border:1px solid ${x.c}44;border-radius:9px;padding:9px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:${x.c};margin-bottom:3px">${x.f}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:bold;color:${x.pct>=70?'var(--ok)':x.pct>=50?'var(--warn)':'var(--danger)'}">${x.pct}%</div>
+    </div>`).join('');
+  // Détail
+  const detEl=document.getElementById('sv-detail');
+  detEl.innerHTML='<div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden">'+
+    FAM[0].comps.slice(0,4).map(c=>`<div class="sv-comp">
+      <div class="sv-comp-name">${c.n}</div>
+      <div class="nc nc-aq">🟢 Acquis</div>
+    </div>`).join('')+'</div>';
+  // Historique
+  document.getElementById('sv-history').innerHTML=`
+    <div class="tli"><div class="tld" style="background:var(--ok)"></div><div class="tlc"><div class="tls">MES-01 · Reconnaissance</div><div class="tlm">04 mars · 87%</div></div></div>
+    <div class="tli"><div class="tld" style="background:var(--warn)"></div><div class="tlc"><div class="tls">MES-02 · Intervention</div><div class="tlm">05 mars · 72%</div></div></div>`;
+  // Référentiel
+  renderSvRef();
+}
+function renderSvRef(){
+  const el=document.getElementById('sv-ref-content');
+  el.innerHTML=FAM.map(f=>`
+    <div style="background:${f.color}11;border:1.5px solid ${f.color}44;border-radius:11px;margin-bottom:9px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 11px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <span style="font-size:17px">${f.icon}</span>
+        <div style="flex:1"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--t1)">${f.name}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${f.color}">${f.code} · ${f.comps.length} compétences</div></div>
+        <span style="font-size:13px;color:var(--t3)">›</span>
+      </div>
+      <div style="display:none;border-top:1px solid var(--b1)">
+        ${f.comps.map(c=>`
+          <div style="padding:8px 11px;border-bottom:1px solid var(--b1);cursor:pointer" onclick="this.querySelector('.svs').style.display=this.querySelector('.svs').style.display==='none'?'block':'none'">
+            <div style="display:flex;align-items:flex-start;gap:7px">
+              <span style="color:${f.color};font-size:13px;flex-shrink:0">›</span>
+              <div style="flex:1">
+                <div style="font-size:13px;color:var(--t1);line-height:1.3">${c.n}</div>
+                <div class="svs" style="display:none;margin-top:6px;padding:6px 8px;background:var(--s3);border-radius:7px">
+                  ${c.s.map(sub=>`<div style="font-size:11px;color:var(--t2);line-height:1.4;padding:2px 0;display:flex;gap:5px"><span style="color:var(--accent);flex-shrink:0">·</span>${sub}</div>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+function svTab(btn,show,all){
+  all.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  document.querySelectorAll('#sc-stag-view .tbt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const el=document.getElementById(show);
+  if(el)el.style.display=window.innerWidth>=768?'block':'flex';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════════════════════════ */
+function showTip(title,subsJSON){
+  let subs;try{subs=JSON.parse(subsJSON.replace(/&quot;/g,'"'));}catch{subs=[];}
+  document.getElementById('tip-title').textContent=title;
+  document.getElementById('tip-subs').innerHTML=subs.map(s=>`<div class="tip-sub">${s}</div>`).join('');
+  document.getElementById('tip-ov').classList.add('open');
+}
+function hideTip(){document.getElementById('tip-ov').classList.remove('open');}
+
+/* ═══════════════════════════════════════════════════════════
+   SIGNATURE
+═══════════════════════════════════════════════════════════ */
+function initSig(){
+  const cv=document.getElementById('sig-cv');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const r=cv.getBoundingClientRect();
+  cv.width=r.width*window.devicePixelRatio||300;
+  cv.height=r.height*window.devicePixelRatio||110;
+  ctx.strokeStyle='#00d4b4';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+  let drawing=false;
+  const pos=e=>{const t=e.touches?e.touches[0]:e;const rc=cv.getBoundingClientRect();return{x:(t.clientX-rc.left)*(cv.width/rc.width),y:(t.clientY-rc.top)*(cv.height/rc.height)};};
+  cv.onmousedown=e=>{drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  cv.onmousemove=e=>{if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};
+  cv.onmouseup=()=>drawing=false;
+  cv.ontouchstart=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  cv.ontouchmove=e=>{e.preventDefault();if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};
+  cv.ontouchend=()=>drawing=false;
+}
+function clearSig(){const cv=document.getElementById('sig-cv');if(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);}}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST / CONFIRM / MODAL
+═══════════════════════════════════════════════════════════ */
+let toastTo=null;
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show'+(err?' err':'');
+  if(toastTo)clearTimeout(toastTo);
+  toastTo=setTimeout(()=>t.className='',2400);
+}
+function confirm2(msg,onOk){
+  document.getElementById('cfm-msg').textContent=msg;
+  document.getElementById('cfm-btns').innerHTML=`
+    <button class="btn btn-ghost" style="flex:1" onclick="closeCfm()">Annuler</button>
+    <button class="btn btn-danger" style="flex:2" onclick="closeCfm();(${onOk.toString()})()">Confirmer</button>`;
+  document.getElementById('cfm-ov').classList.add('open');
+}
+function closeCfm(){document.getElementById('cfm-ov').classList.remove('open');}
+function showModal(html){document.getElementById('modal-box').innerHTML=html;document.getElementById('modal-ov').classList.add('open');}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open');}
+
+/* ═══════════════════════════════════════════════════════════
+   PHOTO UPLOAD
+═══════════════════════════════════════════════════════════ */
+function previewPhoto(prevId, input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById(prevId);
+    if(prev){
+      prev.innerHTML = '';
+      prev.style.backgroundImage = 'url('+e.target.result+')';
+      prev.style.backgroundSize = 'cover';
+      prev.style.backgroundPosition = 'center';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadStagPhoto(stagId){
+  const input = document.getElementById('m-photo-inp');
+  if(!input||!input.files[0]) return null;
+  const file = input.files[0];
+  const ext = file.name.split('.').pop();
+  const path = 'stagiaires/'+stagId+'.'+ext;
+  try{
+    const url = await SB.uploadPhoto(file, path);
+    return url;
+  }catch(e){
+    console.error('Photo upload error:', e);
+    return null;
+  }
+}
+
+async function changerPhoto(stagId){
+  // Créer un input file temporaire
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if(!file) return;
+    showToast('Upload en cours...');
+    try{
+      const ext = file.name.split('.').pop();
+      const path = 'stagiaires/'+stagId+'.'+ext;
+      const url = await SB.uploadPhoto(file, path);
+      // Mettre à jour en DB
+      await SB.update('stagiaires', {photo_url: url}, {id: stagId});
+      // Mettre à jour le cache local
+      const stag = S.stagiaires.find(s=>s.id===stagId);
+      if(stag) stag.photo_url = url;
+      showToast('Photo mise à jour');
+      // Rafraîchir la fiche
+      showFiche(stagId);
+    }catch(e){showToast('Erreur upload : '+e.message, true);}
+  };
+  input.click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT CSV — Super Admin uniquement
+═══════════════════════════════════════════════════════════ */
+async function exportCSV(table){
+  if(S.user?.data?.role!=='superadmin'){showToast('Accès refusé',true);return;}
+  try{
+    showToast('⏳ Export en cours…');
+    const rows=await SB.query(table,'*');
+    if(!rows||!rows.length){showToast('Aucune donnée',true);return;}
+    const keys=Object.keys(rows[0]);
+    const lines=[keys.join(';')];
+    rows.forEach(r=>lines.push(keys.map(k=>{
+      const v=r[k]??'';
+      const s=String(v).replace(/"/g,'""');
+      return s.includes(';')||s.includes('"')||s.includes('\n')?`"${s}"`:s;
+    }).join(';')));
+    const csv=lines.join('\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='nrbc_'+table+'_'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✓ Export '+table+' téléchargé');
+  }catch(e){showToast('Erreur export',true);console.error(e);}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REINITIALISATION + HISTORIQUE
+═══════════════════════════════════════════════════════════ */
+async function reinitialiserSession(){
+  document.getElementById('cfm-msg').textContent='Supprimer toutes les sessions et evaluations ? Les stagiaires seront conserves.';
+  document.getElementById('cfm-btns').innerHTML=
+    '<button class="btn btn-ghost" style="flex:1" onclick="closeCfm()">Annuler</button>'+
+    '<button class="btn btn-danger" style="flex:2" onclick="closeCfm();doReinitialiser()">Reinitialiser</button>';
+  document.getElementById('cfm-ov').classList.add('open');
+}
+async function doReinitialiser(){
+  try{
+    await SB.deleteAll('notes_competences');
+    await SB.deleteAll('evaluations');
+    await SB.deleteAll('retex');
+    await SB.deleteAll('sessions');
+    S.session=null;
+    if(S.chronoIv){clearInterval(S.chronoIv);S.chronoIv=null;}
+    showToast('Sessions reinitialises');
+    go('dashboard');
+  }catch(e){showToast('Erreur : '+e.message,true);}
+}
+
+async function renderHistorique(){
+  const el=document.getElementById('hist-list');
+  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">Chargement...</div>';
+  try{
+    const sessions=await SB.query('sessions','*');
+    const evals=await SB.query('evaluations','id,session_id,stagiaire_id,mise_en_situation,created_at');
+    const notes=await SB.query('notes_competences','evaluation_id,note');
+    if(!sessions||!sessions.length){
+      el.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)">Aucune session enregistree</div>';
+      return;
+    }
+    sessions.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    let html='';
+    for(const sess of sessions){
+      const sessEvals=(evals||[]).filter(e=>e.session_id===sess.id);
+      const d=new Date(sess.created_at);
+      const dateStr=d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+      const statutHtml=sess.statut==='ouverte'
+        ?'<span style="font-size:8px;color:var(--ok);padding:2px 7px;border-radius:5px;background:rgba(50,215,75,.1)">OUVERTE</span>'
+        :'<span style="font-size:8px;color:var(--t3);padding:2px 7px;border-radius:5px;background:var(--s2)">CLOTUREE</span>';
+      const sessNoteIds=sessEvals.map(e=>e.id);
+      const sessNotes=(notes||[]).filter(n=>sessNoteIds.includes(n.evaluation_id));
+      const acq=sessNotes.filter(n=>n.note===3).length;
+      const encours=sessNotes.filter(n=>n.note===2).length;
+      const nonacq=sessNotes.filter(n=>n.note===1).length;
+      let evHtml='';
+      for(const ev of sessEvals){
+        const stag=S.stagiaires.find(s=>s.id===ev.stagiaire_id);
+        const stagNom=stag?stag.nom:'[Supprimé]';
+        const evN=(notes||[]).filter(n=>n.evaluation_id===ev.id);
+        const pct=evN.length?Math.round(evN.filter(n=>n.note===3).length/evN.length*100):0;
+        const col=pct>=70?'var(--ok)':pct>=50?'var(--warn)':'var(--danger)';
+        evHtml+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--b1)">'+
+          '<div style="flex:1;font-size:13px;color:'+(stag?'var(--t1)':'var(--t3)')+';font-weight:600">'+stagNom+'</div>'+
+          '<div style="font-size:9px;color:var(--t3)">'+ev.mise_en_situation+'</div>'+
+          '<div style="font-size:13px;font-weight:bold;color:'+col+'">'+(evN.length?pct+'%':'--')+'</div></div>';
+      }
+      const isSAdmin=S.user?.data?.role==='superadmin';
+      const delBtn=isSAdmin?('<button onclick="supprimerSession(\''+sess.id+'\',event)" style="background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.3);color:var(--danger);border-radius:7px;padding:4px 10px;font-size:10px;cursor:pointer">&#128465;</button>'):'';
+      html+='<div style="background:var(--s1);border:1px solid var(--b1);border-radius:13px;margin-bottom:10px;overflow:hidden">'+
+        '<div style="padding:12px 14px;border-bottom:1px solid var(--b1)">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'+
+            '<div style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;color:var(--t1)">'+sess.titre+'</div>'+
+            '<div style="display:flex;align-items:center;gap:6px">'+statutHtml+delBtn+'</div></div>'+
+          '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+            '<span style="font-size:9px;color:var(--t3)">'+dateStr+'</span>'+
+            '<span style="font-size:9px;color:var(--blue)">'+sess.mise_en_situation+'</span>'+
+            '<span style="font-size:9px;color:var(--t2)">'+sessEvals.length+' eval</span></div></div>'+
+        (sessEvals.length?
+          '<div style="padding:10px 14px">'+
+            '<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">'+
+              '<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(50,215,75,.1);color:var(--ok)">'+acq+' acquis</span>'+
+              '<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(255,159,10,.1);color:var(--warn)">'+encours+' en cours</span>'+
+              '<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(255,69,58,.1);color:var(--danger)">'+nonacq+' non acquis</span>'+
+            '</div>'+evHtml+'</div>'
+          :'<div style="padding:10px;font-size:9px;color:var(--t3)">Aucune evaluation</div>')+
+        '</div>';
+    }
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--danger)">Erreur</div>';}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUPPRESSION SESSION
+═══════════════════════════════════════════════════════════ */
+async function supprimerSession(sessId,evt){if(evt)evt.stopPropagation();
+  if(S.user?.data?.role!=='superadmin'){showToast('Accès refusé',true);return;}
+  S._deleteSessId=sessId;
+  document.getElementById('cfm-msg').textContent='Supprimer cette session et toutes ses évaluations ?';
+  document.getElementById('cfm-btns').innerHTML=
+    '<button class="btn btn-ghost" style="flex:1" onclick="closeCfm()">Annuler</button>'+
+    '<button class="btn btn-danger" style="flex:2" onclick="closeCfm();doSupprimerSession()">Supprimer</button>';
+  document.getElementById('cfm-ov').classList.add('open');
+}
+async function doSupprimerSession(){
+  const sessId=S._deleteSessId;
+  if(!sessId)return;
+  try{
+    // Récupérer les évals de cette session
+    const evals=await SB.query('evaluations','id',{session_id:sessId});
+    for(const ev of (evals||[])){
+      await SB.delete('notes_competences',{evaluation_id:ev.id});
+    }
+    await SB.delete('evaluations',{session_id:sessId});
+    await SB.delete('retex',{session_id:sessId});
+    await SB.delete('sessions',{id:sessId});
+    // Si c'est la session active, on la vide
+    if(S.session&&S.session.id===sessId){
+      S.session=null;
+      if(S.chronoIv){clearInterval(S.chronoIv);S.chronoIv=null;}
+    }
+    S._deleteSessId=null;
+    showToast('Session supprimée');
+    renderHistorique(); // Rafraîchir la liste
+  }catch(e){showToast('Erreur : '+e.message,true);}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DÉMARRAGE
+═══════════════════════════════════════════════════════════ */
+boot();
+</script>
+</body>
+</html>
